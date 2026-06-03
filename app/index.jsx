@@ -85,20 +85,24 @@ export default function SplashScreen() {
     return () => clearTimeout(timer);
   }, []);
 
-  const dotData = [0, 1, 2];
-  const dotAnims = dotData.map((_, i) => {
-    const dotScale = useRef(new Animated.Value(1)).current;
-    Animated.loop(
-      Animated.sequence([
-        Animated.delay(i * 200),
+  const dot0 = useRef(new Animated.Value(1)).current;
+  const dot1 = useRef(new Animated.Value(1)).current;
+  const dot2 = useRef(new Animated.Value(1)).current;
+  const dotAnims = [dot0, dot1, dot2];
+
+  useEffect(() => {
+    dotAnims.forEach((dotScale, i) => {
+      Animated.loop(
         Animated.sequence([
-          Animated.timing(dotScale, { toValue: 1.3, duration: 750, useNativeDriver: true }),
-          Animated.timing(dotScale, { toValue: 1, duration: 750, useNativeDriver: true }),
-        ]),
-      ])
-    ).start();
-    return dotScale;
-  });
+          Animated.delay(i * 200),
+          Animated.sequence([
+            Animated.timing(dotScale, { toValue: 1.3, duration: 750, useNativeDriver: true }),
+            Animated.timing(dotScale, { toValue: 1, duration: 750, useNativeDriver: true }),
+          ]),
+        ])
+      ).start();
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
