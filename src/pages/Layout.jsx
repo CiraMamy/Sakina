@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, MessageCircle, Heart, Users, User, LayoutDashboard } from 'lucide-react';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '../utils';
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
