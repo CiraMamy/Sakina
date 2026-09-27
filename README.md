@@ -1,20 +1,25 @@
-# Base44 App
+# Sakina
 
+Sakina is a mental wellness web app focused on emotional support, guided conversation, and self-tracking.
 
-This app was created automatically by Base44.
-It's a Vite+React app that communicates with the Base44 API.
+## Features
+- therapeutic chat
+- mood checks
+- sleep tracking
+- dashboard
+- user profile
+- safety messaging for crisis detection
 
-## Running the app
-
+## Run locally
 ```bash
 npm install
 npm run dev
 ```
 
-## Building the app
-
+## Build
 ```bash
 npm run build
 ```
 
-For more information and support, please contact Base44 support at app@base44.com.
+## Notes
+This project depends on the Base44 SDK for some data and AI integrations.

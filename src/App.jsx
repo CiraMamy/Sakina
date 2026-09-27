@@ -1,7 +1,6 @@
-import './App.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import Pages from "@/pages/index.jsx"
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from '@/components/ui/toaster'
+import Pages from '@/pages/index.jsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,4 +17,4 @@ function App() {
   )
 }
 
-export default App 
+export default App
