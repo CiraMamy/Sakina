@@ -69,6 +69,10 @@ model User {
   messages         Message[]
   auditEvents      AuditEvent[]
   safetyAlerts     SafetyAlert[]
+  journalEntries   JournalEntry[]
+  emotionCheckins  EmotionCheckin[]
+  wellnessLogs     WellnessLog[]
+  memoryRecords    MemoryRecord[]
 }
 
 model Profile {
@@ -175,4 +179,56 @@ model AuditEvent {
   createdAt     DateTime @default(now())
 
   actor         User?     @relation(fields: [actorUserId], references: [id])
+}
+
+model JournalEntry {
+  id          String   @id @default(uuid())
+  userId      String
+  moodScore   Float?
+  title       String?
+  content     String
+  tags        String[]
+  context     Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model EmotionCheckin {
+  id          String   @id @default(uuid())
+  userId      String
+  moodLabel   String?
+  valence     Float?
+  arousal     Float?
+  dominance   Float?
+  confidence  Float?
+  uncertainty Float?
+  context     Json?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model WellnessLog {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String   @default("exercise")
+  title       String?
+  value       Float?
+  note        String?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model MemoryRecord {
+  id          String   @id @default(uuid())
+  userId      String
+  memoryType  String   @default("insight")
+  summary     String
+  confidence  Float?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
 }
