@@ -1,0 +1,115 @@
+enum Professional Role {
+  PSYCHOLOGIST
+  PSYCHIATRIST
+  COUNSELOR
+  SOCIAL_WORKER
+  NURSE
+  GENERAL_PRACTITIONER
+  OTHER
+}
+
+enum ReferralStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  REMINDER
+  ALERT
+  FOLLOW_UP
+  REFERRAL
+  EDUCATIONAL
+  SYSTEM
+}
+
+model Professional {
+  id              String   @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String   @unique
+  phone           String?
+  license         String?
+  role            Professional Role
+  specialties     String[]
+  country         String
+  city            String?
+  languagesSpoken String[]
+  bio             String?
+  isVerified      Boolean  @default(false)
+  verifiedAt      DateTime?
+  isActive        Boolean  @default(true)
+  availability    Json?
+  costPerSession  Float?
+  remoteAvailable Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  referrals       Referral[]
+  auditEvents     AuditEvent[]
+}
+
+model Referral {
+  id              String   @id @default(uuid())
+  userId          String
+  professionalId  String?
+  reason          String
+  status          ReferralStatus @default(PENDING)
+  userConsent     Boolean  @default(true)
+  notes           String?
+  followUpDate    DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id])
+  professional    Professional? @relation(fields: [professionalId], references: [id])
+}
+
+model Notification {
+  id              String   @id @default(uuid())
+  userId          String
+  type            NotificationType
+  title           String
+  message         String
+  status          String   @default("PENDING")
+  scheduledFor    DateTime?
+  sentAt          DateTime?
+  readAt          DateTime?
+  channel         String   @default("PUSH")
+  consent         Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+model StorageObject {
+  id              String   @id @default(uuid())
+  userId          String
+  key             String
+  bucketName      String
+  mimeType        String
+  size            Int
+  isEncrypted     Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime?
+
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+model DataRetentionPolicy {
+  id              String   @id @default(uuid())
+  country         String   @unique
+  userId          String?
+  category        String
+  retentionDays   Int
+  allowExport     Boolean  @default(true)
+  allowDelete     Boolean  @default(true)
+  legalBasis      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User?    @relation(fields: [userId], references: [id])
+}

@@ -14,6 +14,12 @@ import { EmotionsModule } from './modules/emotions/emotions.module';
 import { WellnessModule } from './modules/wellness/wellness.module';
 import { MemoryModule } from './modules/memory/memory.module';
 import { AiModule } from './modules/ai/ai.module';
+import { ProfessionalsModule } from './modules/professionals/professionals.module';
+import { ReferralModule } from './modules/referral/referral.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { StorageModule } from './modules/storage/storage.module';
+import { PrivacyModule } from './modules/privacy/privacy.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -34,6 +40,12 @@ import { AppService } from './app.service';
     WellnessModule,
     MemoryModule,
     AiModule,
+    ProfessionalsModule,
+    ReferralModule,
+    NotificationsModule,
+    StorageModule,
+    PrivacyModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
