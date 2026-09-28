@@ -1,55 +1,60 @@
-# Sakina Backend Phase 1
+# Sakina Backend Status
 
-This repository now includes the first backend scaffolding for Sakina, built as a modular monolith in NestJS with Prisma and PostgreSQL.
+## Completed
 
-## Phase 1 deliverables
+- repository audit completed
+- architecture documentation created
+- ADRs created
+- monorepo structure scaffolded
+- NestJS API foundation scaffolded
+- Prisma schema initial foundation prepared
+- auth, users, consent, conversation, profile, audit, identity modules scaffolded
+- security guard and exception filter scaffolded
 
-- NestJS API bootstrap
-- Prisma schema with users, profiles, consent, sessions, conversations, messages, audit, safety.
-- JWT auth foundation for secure access control
-- Domain modules for auth, users, profiles, consents, conversations, health, safety, audit
-- Basic OpenAPI documentation
-- Docker Compose for PostgreSQL and Redis
-- Security and privacy-first scaffolding
+## In Progress
 
-## Prerequisites
+- full Prisma integration and migration setup
+- concrete role-based authorization layer
+- OIDC / Keycloak integration design
+- journal / wellness / emotion / safety domain modules
+- API validation and error contract alignment
+- audit pipeline and data retention flow
 
-- Node.js >= 20
-- PostgreSQL 18 (or Docker Compose)
-- npm
+## Blocked
 
-## Setup
+- production-grade database runtime not yet connected to a live PostgreSQL instance
+- full security review and policy enforcement not yet implemented in production code
+- AI model gateway and safety engine not yet wired to actual model providers
 
-```bash
-cd apps/api
-cp .env.example .env
-npm install
-npx prisma generate
-npx prisma migrate dev --name init
-npm run start:dev
-```
+## Decisions
 
-Then visit:
+- modular monolith first, with domain boundaries that support future extraction
+- Prisma selected as the primary ORM
+- NATS JetStream selected for internal eventing
+- OIDC / Keycloak selected for identity and access
+- strong separation between identity data and mental health data
 
-- API: http://localhost:3000/api/v1
-- Swagger: http://localhost:3000/docs
+## Security Risks
 
-## Security note
+- raw health data must never be logged in standard logs
+- model provider integration must include consent and policy controls
+- complex AI workflows must remain behind a safety verifier and human oversight layer
 
-This is a Phase 1 foundation. It is not yet a fully production-hardened clinical system.
+## AI Risks
 
-The following remain to be added in later phases:
+- emotional inference must remain probabilistic and uncertain
+- no diagnosis claims by the AI without explicit human review and clinical governance
+- crisis workflows must use verified safety policies and never form dependency on the user
 
-- Keycloak / OIDC full integration
-- policy-based safety engine
-- AI model gateway abstraction
-- Temporal workflows
-- professional directory and referral engine
-- observability and tracing
-- privacy controls and retention jobs
-- load tests and security tests
+## Next Milestones
 
-## Important architecture decision
+1. complete DB + Prisma migration readiness
+2. finalize role and permission layer
+3. add journal and wellness core services
+4. add AI gateway and safety policy scaffolds
+5. add observability and CI/CD baseline
+6. validate build and security checks before production evolution
 
-This phase follows the modular monolith strategy described in the architecture docs. The AI layer and workflows remain intentionally isolated from the core API, so the platform can evolve to a distributed system later without rewriting the domain model.
+## Summary
 
+The repository has successfully passed the architecture and foundation phase for Sakina. The backend is now moving from design scaffolding to actual domain implementation. The remaining work is targeted, security-driven, and must remain grounded in the product's non-negotiables.
