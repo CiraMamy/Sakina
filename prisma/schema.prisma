@@ -1,5 +1,6 @@
-// This Prisma schema is the initial production-focused foundation for Sakina.
-// It is intentionally scoped to the core digital health domains and can be expanded safely.
+// Prisma schema for Sakina: Digital Health platform for mental wellbeing
+// Designed with strict separation between identity and health data
+// All enums and models follow domain-driven design principles
 
 generator client {
   provider = "prisma-client-js"
@@ -10,9 +11,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================================================
+// ENUMS - Centralized value definitions
+// ============================================================================
+
+enum UserRole {
+  USER
+  PROFESSIONAL
+  SUPPORT_AGENT
+  ORGANIZATION_ADMIN
+  CLINICAL_ADVISOR
+  RESEARCHER
+  SUPER_ADMIN
+}
+
 enum ConsentStatus {
-  ACCEPTED
+  GRANTED
   REVOKED
+  EXPIRED
   PENDING
 }
 
@@ -23,6 +39,35 @@ enum ConsentType {
   RESEARCH
   REFERRAL
   MARKETING
+  DATA_EXPORT
+}
+
+enum ConsentSource {
+  WEB
+  MOBILE
+  SMS
+  ADMIN
+  OIDC
+}
+
+enum SafetyLevel {
+  LOW
+  MODERATE
+  HIGH
+  CRITICAL
+}
+
+enum RiskSignal {
+  DISTRESS
+  EMOTIONAL_CRISIS
+  SELF_HARM_CONCERN
+  SUICIDAL_IDEATION
+  IMMINENT_DANGER
+  VIOLENCE_CONCERN
+  SAFEGUARDING_CONCERN
+  SUBSTANCE_CRISIS
+  SEVERE_CONFUSION
+  OTHER
 }
 
 enum MessageRole {
@@ -31,108 +76,408 @@ enum MessageRole {
   SYSTEM
 }
 
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+enum ProfessionalStatus {
+  UNVERIFIED
+  VERIFIED
+  SUSPENDED
+  REMOVED
+}
+
+enum ReferralStatus {
+  INITIATED
+  CONSENTED
+  SENT
+  ACKNOWLEDGED
+  COMPLETED
+  DECLINED
+  FAILED
+}
+
+enum NotificationType {
+  REMINDER
+  ALERT
+  MESSAGE
+  REFERRAL
+  UPDATE
+}
+
+enum NotificationChannel {
+  PUSH
+  EMAIL
+  SMS
+  IN_APP
+}
+
+// ============================================================================
+// IDENTITY & ACCESS DOMAIN
+// ============================================================================
+
 model User {
   id                String    @id @default(uuid())
   email             String    @unique
+  phoneNumber       String?   @unique
   passwordHash      String
-  displayName       String?
+  firstName         String?
+  lastName          String?
+  role              UserRole  @default(USER)
   isActive          Boolean   @default(true)
-  status            String    @default("active")
+  emailVerified     Boolean   @default(false)
+  phoneVerified     Boolean   @default(false)
+  lastLoginAt       DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
 
-  profiles          UserProfile?
+  // Relations
+  profile           Profile?
   consents          Consent[]
-  conversations     Conversation[]
+  sessions          UserSession[]
+  auditEvents       AuditEvent[]
+  conversationParticipants ConversationParticipant[]
+  messages          Message[]
+  sentReferrals     Referral[] @relation("ReferrerUser")
+  receivedReferrals Referral[] @relation("ReferralRecipient")
+  notifications     Notification[]
   journalEntries    JournalEntry[]
-  auditEvents       AuditLog[]
+  emotionCheckins   EmotionCheckin[]
+  wellnessLogs      WellnessLog[]
+  memoryRecords     MemoryRecord[]
+  safetyAlerts      SafetyAlert[]
+  professional      Professional?
+
+  @@index([email])
+  @@index([createdAt])
+  @@index([role])
 }
 
-model UserProfile {
+model UserSession {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash         String
+  refreshToken      String?   @unique
+  deviceName        String?
+  ipAddress         String?
+  userAgent         String?
+  expiresAt         DateTime
+  revokedAt         DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// ============================================================================
+// PROFILE & PREFERENCES DOMAIN
+// ============================================================================
+
+model Profile {
   id                String    @id @default(uuid())
   userId            String    @unique
-  user              User      @relation(fields: [userId], references: [id])
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   country           String?
   language          String    @default("fr")
-  timezone          String?
-  accessibility     String?
-  preferences       Json      @default("{}")
+  timezone          String    @default("UTC")
+  dateOfBirth       DateTime?
+  gender            String?
+  accessibility     Json?     // { screenReaderEnabled: boolean, contrastMode: string, ... }
+  preferences       Json      @default("{}") // { theme: string, reminders: boolean, ... }
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+
+  @@index([userId])
 }
+
+// ============================================================================
+// CONSENT & PRIVACY DOMAIN
+// ============================================================================
 
 model Consent {
   id                String        @id @default(uuid())
   userId            String
-  user              User          @relation(fields: [userId], references: [id])
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   type              ConsentType
   version           String
   status            ConsentStatus @default(PENDING)
+  source            ConsentSource @default(WEB)
   purpose           String
   legalBasis        String?
-  source            String?
-  acceptedAt        DateTime?
+  grantedAt         DateTime?
   revokedAt         DateTime?
+  metadata          Json?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
+  @@unique([userId, type, version])
   @@index([userId, type])
+  @@index([status])
+  @@index([createdAt])
 }
+
+// ============================================================================
+// CONVERSATION & MESSAGING DOMAIN
+// ============================================================================
 
 model Conversation {
   id                String    @id @default(uuid())
-  userId            String
-  user              User      @relation(fields: [userId], references: [id])
   title             String?
-  status            String    @default("active")
+  status            ConversationStatus @default(ACTIVE)
+  summary           String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  archivedAt        DateTime?
 
+  participants      ConversationParticipant[]
   messages          Message[]
+  safetyAlerts      SafetyAlert[] @relation("ConversationSafetyAlerts")
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ConversationParticipant {
+  id                String    @id @default(uuid())
+  conversationId    String
+  conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role              String    @default("USER")
+  joinedAt          DateTime  @default(now())
+  leftAt            DateTime?
+
+  @@unique([conversationId, userId])
+  @@index([conversationId])
+  @@index([userId])
 }
 
 model Message {
-  id                String        @id @default(uuid())
+  id                String    @id @default(uuid())
   conversationId    String
-  conversation      Conversation  @relation(fields: [conversationId], references: [id])
+  conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId            String?
+  user              User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   role              MessageRole
   content           String
-  safetyLevel       String?
-  affectState       Json?
+  embeddingVector   String?   // Placeholder for vector storage with pgvector
+  safetyLevel       SafetyLevel?
+  safetySignals     RiskSignal[]
+  affectState       Json?     // { valence, arousal, dominance, emotions[], uncertainty, ... }
   metadata          Json?
-  createdAt         DateTime      @default(now())
+  createdAt         DateTime  @default(now())
 
-  @@index([conversationId, createdAt])
+  @@index([conversationId])
+  @@index([userId])
+  @@index([createdAt])
 }
+
+// ============================================================================
+// MENTAL HEALTH & WELLNESS DOMAIN
+// ============================================================================
 
 model JournalEntry {
   id                String    @id @default(uuid())
   userId            String
-  user              User      @relation(fields: [userId], references: [id])
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title             String?
   content           String
-  mood              String?
-  emotions          String[]
+  moodLabel         String?
+  moodScore         Float?
+  emotions          String[]  // Array of emotion tags
   tags              String[]
-  private           Boolean   @default(true)
+  context           Json?     // { location, activity, socialContext, ... }
+  isPrivate         Boolean   @default(true)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
   @@index([userId, createdAt])
+  @@index([isPrivate])
 }
 
-model AuditLog {
+model EmotionCheckin {
   id                String    @id @default(uuid())
-  userId            String?
-  user              User?     @relation(fields: [userId], references: [id])
-  action            String
-  resourceType      String
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moodLabel         String?
+  valence           Float?    // -1.0 to 1.0
+  arousal           Float?    // 0.0 to 1.0
+  dominance         Float?    // 0.0 to 1.0
+  confidence        Float?    // 0.0 to 1.0
+  uncertainty       Float?    // 0.0 to 1.0
+  emotions          String[]  // Primary and secondary emotions
+  needs             String[]  // Inferred or user-reported needs
+  context           Json?     // { conversation_summary, temporal_trend, ... }
+  modelVersion      String?   // Track which emotion model version was used
+  userCorrected     Boolean   @default(false)
+  userCorrectionAt  DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model WellnessLog {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              String    // "exercise", "sleep", "meditation", "breathing", etc.
+  title             String?
+  description       String?
+  value             Float?
+  unit              String?   // "minutes", "hours", "km", etc.
+  metadata          Json?
+  createdAt         DateTime  @default(now())
+
+  @@index([userId, type, createdAt])
+}
+
+model MemoryRecord {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  memoryType        String    @default("insight") // "insight", "preference", "concern", "context"
+  summary           String
+  confidence        Float?
+  source            String?   // "conversation", "journal", "user_feedback"
+  metadata          Json?
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId, isActive])
+}
+
+// ============================================================================
+// SAFETY & CRISIS DOMAIN
+// ============================================================================
+
+model SafetyAlert {
+  id                String        @id @default(uuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversationId    String?
+  conversation      Conversation? @relation("ConversationSafetyAlerts", fields: [conversationId], references: [id], onDelete: SetNull)
+  level             SafetyLevel
+  signals           RiskSignal[]
+  confidence        Float
+  summary           String
+  requiredAction    String?       // "LISTEN", "VALIDATE", "REFER", "ESCALATE", etc.
+  humanEscalation   Boolean       @default(false)
+  escalatedAt       DateTime?
+  escalatedBy       String?       // User ID of the escalating professional
+  metadata          Json?         // { policy_version, model_version, ... }
+  resolvedAt        DateTime?
+  createdAt         DateTime      @default(now())
+
+  @@index([userId, level])
+  @@index([level, createdAt])
+  @@index([humanEscalation])
+}
+
+// ============================================================================
+// PROFESSIONAL & REFERRAL DOMAIN
+// ============================================================================
+
+model Professional {
+  id                String          @id @default(uuid())
+  userId            String          @unique
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName         String
+  lastName          String
+  specialties       String[]        // ["psychiatrist", "psychologist", "counselor", ...]
+  qualifications    String[]
+  languages         String[]
+  status            ProfessionalStatus @default(UNVERIFIED)
+  verifiedAt        DateTime?
+  verifiedBy        String?         // User ID of the verifying admin
+  licenseNumber     String?
+  organization      String?
+  bio               String?
+  isRemote          Boolean         @default(false)
+  isAvailable       Boolean         @default(true)
+  availabilityHours Json?           // { monday: [9, 17], tuesday: [...], ... }
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  referrals         Referral[] @relation("ProfessionalReferrals")
+
+  @@index([status])
+  @@index([specialties])
+}
+
+model Referral {
+  id                String          @id @default(uuid())
+  referrerUserId    String?
+  referrerUser      User?           @relation("ReferrerUser", fields: [referrerUserId], references: [id], onDelete: SetNull)
+  recipientUserId   String
+  recipientUser     User            @relation("ReferralRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade)
+  professionalId    String
+  professional      Professional    @relation("ProfessionalReferrals", fields: [professionalId], references: [id], onDelete: Cascade)
+  reason            String
+  consentGiven      Boolean         @default(false)
+  consentGivenAt    DateTime?
+  status            ReferralStatus  @default(INITIATED)
+  notes             String?
+  metadata          Json?           // { safety_level, conversation_context, ... }
+  sentAt            DateTime?
+  acknowledgedAt    DateTime?
+  completedAt       DateTime?
+  failureReason     String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([recipientUserId, status])
+  @@index([professionalId])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// NOTIFICATIONS DOMAIN
+// ============================================================================
+
+model Notification {
+  id                String            @id @default(uuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              NotificationType
+  channel           NotificationChannel
+  title             String
+  content           String
+  actionUrl         String?
+  metadata          Json?
+  isRead            Boolean           @default(false)
+  readAt            DateTime?
+  sentAt            DateTime?
+  failureReason     String?
+  createdAt         DateTime          @default(now())
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// AUDIT & COMPLIANCE DOMAIN
+// ============================================================================
+
+model AuditEvent {
+  id                String    @id @default(uuid())
+  actorUserId       String?
+  actor             User?     @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  action            String    // "login", "consent_accept", "data_export", etc.
+  resourceType      String?   // "user", "conversation", "journal", etc.
   resourceId        String?
-  details           Json
+  details           Json?
   ipAddress         String?
   userAgent         String?
   success           Boolean
   errorMessage      String?
   createdAt         DateTime  @default(now())
 
-  @@index([userId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([action, createdAt])
+  @@index([resourceType, resourceId])
 }

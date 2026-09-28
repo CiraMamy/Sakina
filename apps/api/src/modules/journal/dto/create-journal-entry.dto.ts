@@ -1,4 +1,10 @@
-import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateJournalEntryDto {
   @IsString()
@@ -6,7 +12,15 @@ export class CreateJournalEntryDto {
 
   @IsOptional()
   @IsString()
-  mood?: string;
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  moodLabel?: string;
+
+  @IsOptional()
+  @IsNumber()
+  moodScore?: number;
 
   @IsOptional()
   @IsArray()
@@ -20,5 +34,5 @@ export class CreateJournalEntryDto {
 
   @IsOptional()
   @IsBoolean()
-  private?: boolean;
+  isPrivate?: boolean;
 }

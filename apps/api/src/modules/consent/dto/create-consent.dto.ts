@@ -1,12 +1,13 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString, IsUUID, IsOptional } from 'class-validator';
 
 export enum ConsentType {
-  AI_SUPPORT = 'ai_support',
-  PRIVACY = 'privacy',
-  VOICE = 'voice',
-  RESEARCH = 'research',
-  REFERRAL = 'referral',
-  MARKETING = 'marketing',
+  AI_SUPPORT = 'AI_SUPPORT',
+  PRIVACY = 'PRIVACY',
+  VOICE = 'VOICE',
+  RESEARCH = 'RESEARCH',
+  REFERRAL = 'REFERRAL',
+  MARKETING = 'MARKETING',
+  DATA_EXPORT = 'DATA_EXPORT',
 }
 
 export class CreateConsentDto {
