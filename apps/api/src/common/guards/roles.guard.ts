@@ -1,15 +1,17 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
-
-export const ROLES_KEY = 'roles';
-export const Roles = (...roles: string[]) => Reflector && Reflect.metadata(ROLES_KEY, roles);
+import { ROLES_KEY } from '../decorators/roles.decorator';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector) {}
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -19,11 +21,13 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest();
-    if (!user || !user.role) {
-      return false;
+    const request = context.switchToHttp().getRequest();
+    const user = request.user ?? { role: 'USER' };
+
+    if (!requiredRoles.includes(user.role)) {
+      throw new ForbiddenException('You do not have access to this resource');
     }
 
-    return requiredRoles.includes(user.role);
+    return true;
   }
 }

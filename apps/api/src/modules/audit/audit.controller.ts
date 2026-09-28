@@ -1,22 +1,15 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PrismaService } from '../../prisma/prisma.service';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { AuditService } from './audit.service';
 
-@ApiTags('Audit')
-@UseGuards(JwtAuthGuard)
+@ApiTags('audit')
 @Controller('audit')
 export class AuditController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly auditService: AuditService) {}
 
-  @Get('events')
-  @ApiOperation({ summary: 'List recent audit events for current user' })
-  async listEvents(@CurrentUser() user: any) {
-    return this.prisma.auditEvent.findMany({
-      where: { actorUserId: user.sub },
-      orderBy: { createdAt: 'desc' },
-      take: 50,
-    });
+  @Get(':userId')
+  @ApiOperation({ summary: 'Fetch a user audit record' })
+  findByUser(@Param('userId') userId: string) {
+    return this.auditService.findByUser(userId);
   }
 }
