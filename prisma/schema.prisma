@@ -1,0 +1,138 @@
+// This Prisma schema is the initial production-focused foundation for Sakina.
+// It is intentionally scoped to the core digital health domains and can be expanded safely.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ConsentStatus {
+  ACCEPTED
+  REVOKED
+  PENDING
+}
+
+enum ConsentType {
+  AI_SUPPORT
+  PRIVACY
+  VOICE
+  RESEARCH
+  REFERRAL
+  MARKETING
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  passwordHash      String
+  displayName       String?
+  isActive          Boolean   @default(true)
+  status            String    @default("active")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  profiles          UserProfile?
+  consents          Consent[]
+  conversations     Conversation[]
+  journalEntries    JournalEntry[]
+  auditEvents       AuditLog[]
+}
+
+model UserProfile {
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id])
+  country           String?
+  language          String    @default("fr")
+  timezone          String?
+  accessibility     String?
+  preferences       Json      @default("{}")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Consent {
+  id                String        @id @default(uuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id])
+  type              ConsentType
+  version           String
+  status            ConsentStatus @default(PENDING)
+  purpose           String
+  legalBasis        String?
+  source            String?
+  acceptedAt        DateTime?
+  revokedAt         DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([userId, type])
+}
+
+model Conversation {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+  title             String?
+  status            String    @default("active")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  messages          Message[]
+}
+
+model Message {
+  id                String        @id @default(uuid())
+  conversationId    String
+  conversation      Conversation  @relation(fields: [conversationId], references: [id])
+  role              MessageRole
+  content           String
+  safetyLevel       String?
+  affectState       Json?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model JournalEntry {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+  content           String
+  mood              String?
+  emotions          String[]
+  tags              String[]
+  private           Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId, createdAt])
+}
+
+model AuditLog {
+  id                String    @id @default(uuid())
+  userId            String?
+  user              User?     @relation(fields: [userId], references: [id])
+  action            String
+  resourceType      String
+  resourceId        String?
+  details           Json
+  ipAddress         String?
+  userAgent         String?
+  success           Boolean
+  errorMessage      String?
+  createdAt         DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}

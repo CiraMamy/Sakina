@@ -1,8 +1,5 @@
-import { Injectable } from '@nestjs/common';
-
-@Injectable()
 export class AppService {
   getHello(): string {
-    return 'Sakina API is running';
+    return 'Sakina API is ready for phase 1 backend scaffolding.';
   }
 }

@@ -1,17 +1,13 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { Controller, Get } from '@nestjs/common';
 
-@ApiTags('Health')
-@UseGuards(JwtAuthGuard)
 @Controller('health')
 export class HealthController {
   @Get()
-  @ApiOperation({ summary: 'Health check endpoint' })
-  async check() {
+  getHealth() {
     return {
       status: 'ok',
       service: 'sakina-api',
+      version: '0.1.0',
       timestamp: new Date().toISOString(),
     };
   }

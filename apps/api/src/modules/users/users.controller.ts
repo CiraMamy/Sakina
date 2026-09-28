@@ -1,30 +1,21 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { UsersService } from './users.service';
 
-@ApiTags('Users')
-@UseGuards(JwtAuthGuard)
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly usersService: UsersService) {}
 
-  @Get('me')
-  @ApiOperation({ summary: 'Get current user details' })
-  async getCurrentUser(@CurrentUser() user: any) {
-    return this.prisma.user.findUnique({
-      where: { id: user.sub },
-      include: { profile: true, consents: true },
-    });
+  @Get()
+  @ApiOperation({ summary: 'List users' })
+  findAll(@Query('limit') limit?: string) {
+    return this.usersService.findAll(Number(limit) || 20);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a user by id' })
-  async getUser(@Param('id') id: string) {
-    return this.prisma.user.findUnique({
-      where: { id },
-      include: { profile: true },
-    });
+  @ApiOperation({ summary: 'Get a user profile' })
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOne(id);
   }
 }
