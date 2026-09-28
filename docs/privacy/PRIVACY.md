@@ -1,56 +1,79 @@
-# Privacy Architecture for Sakina
+# Privacy and Data Governance for Sakina
 
-## Design principles
+## Privacy Principles
 
-- privacy by design
-- data minimization
-- explicit consent
-- purpose limitation
-- user control and deletion
-- access restrictions
-- retention and data residency policies
+Sakina is built on the following principles:
 
-## Sensitive data categories
+1. Privacy by design
+2. Data minimization
+3. Purpose limitation
+4. Consent before processing
+5. User control over their data
+6. Explicit retention and deletion policy
+7. Strong separation of identity and health data
+8. No raw sensitive content in technical logs
+
+## Sensitive Data Categories
 
 - identity data
-- profile data
-- journaling content
-- emotional state data
-- crisis indicators
-- health events
+- demographic data
+- emotional and mental health data
+- journal data
+- conversation content
+- location and device metadata
+- audio and transcript data
 - referral data
-- professional metadata
+- professional directory access data
 
-## Consent model
+## Consent Model
 
-Consent must be:
+Every consent record must include:
 
-- explicit
-- versioned
-- revocable
-- auditable
-- purpose-specific
+- type
+- version
+- purpose
+- status
+- source
+- timestamp
+- legal basis when relevant
+- revocation timestamp if revoked
 
-## Data separation
+Examples:
+- AI consent
+- privacy consent
+- voice consent
+- research consent
+- referral consent
+- marketing consent
 
-Identity, profile, mental health, AI metadata, analytics, and audit data must be isolated logically and practically.
+## User Rights
 
-## User rights
+The platform must support:
 
-Users must be able to:
+- access to own data
+- correction of inaccurate records
+- deletion of personal data
+- export of personal data
+- revocation of consent
+- view of what is stored and why
 
-- access their data
-- correct data
-- delete data
-- revoke consent
-- export data
-- disable AI memory selectively
+## Health Data Isolation
 
-## Retention policy
+Mental health and emotional data require an elevated protection posture. Access should not be implicit, and admin access must be auditable.
 
-Retention must be configurable by data category, jurisdiction, and use case.
+## Data Residency
 
-## Critical rule
+Sakina must support `DATA_RESIDENCY_POLICY` by country. This is important for African geographies and cross-border processing constraints.
 
-No sensitive health content should be stored in regular operational logs or debug output.
+## Retention and Deletion
 
+- keep only what is necessary
+- set explicit retention windows per data category
+- support deletion workflows and anonymization
+- maintain logs that do not expose sensitive content
+
+## Related Documents
+
+- `docs/security/THREAT_MODEL.md`
+- `docs/architecture/DATA_MODEL.md`
+- `docs/adr/ADR-005-health-data-isolation.md`

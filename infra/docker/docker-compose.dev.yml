@@ -1,0 +1,60 @@
+# Sakina Development Environment
+
+This is the initial development environment definition for PostgreSQL 18 + pgvector, Valkey, and supporting services.
+
+```yaml
+version: '3.9'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg18
+    container_name: sakina-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sakina
+      POSTGRES_USER: sakina
+      POSTGRES_PASSWORD: sakina_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sakina -d sakina"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  valkey:
+    image: valkey/valkey:latest
+    container_name: sakina-valkey
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  nats:
+    image: nats:latest
+    container_name: sakina-nats
+    command: ["-js", "-m", "8222"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+  minio:
+    image: minio/minio:latest
+    container_name: sakina-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  minio_data:
+```
+
+This file is a foundation for local development and should evolve with real infra requirements.

@@ -1,67 +1,76 @@
-# Threat Model for Sakina
+# Sakina Threat Model
 
 ## Scope
 
-This threat model covers the Digital Health platform, AI integration, user-sensitive data, crisis workflows, and future professional interfaces.
+This threat model covers critical product, security, and AI risks for the Sakina platform.
 
-## Primary assets
+## Primary Threat Categories
 
-- user identity and credentials
-- mental health and journaling data
-- emotion and health-related inferences
-- consent records
-- referrals and professional records
-- models and knowledge sources
-- admin access and audit trail
+### STRIDE-based Risks
 
-## Key threats
+- Spoofing: account takeover and impersonation
+- Tampering: unauthorized modification of consent or audit records
+- Repudiation: lack of strong logs for privileged operations
+- Information Disclosure: harmful exposure of mental health content
+- Denial of Service: API abuse, model cost exhaustion, resource starvation
+- Elevation of Privilege: admin or professional overreach
 
-### Identity and access threats
+## Critical Product Risks
 
-- account takeover
-- session hijacking
-- privilege escalation
-- IDOR
-- admin misuse
+1. Cross-user data leakage
+2. IDOR via object IDs
+3. Prompt injection affecting system instructions
+4. Overreliance on unverified AI output
+5. Unsafe crisis handling
+6. Unauthorized data export or deletion
+7. Insecure third-party model usage
+8. Model poisoning or poor evaluation governance
 
-### Data privacy threats
+## AI-Specific Risks
 
-- leakage through logs
-- unauthorized export
-- cross-user access
-- unauthorized inference from metadata
+- prompt injection / jailbreak
+- hallucination in medical or safety advice
+- overconfident emotion inference
+- false reassurance
+- dependency formation
+- emotional manipulation
+- unsafe escalation decisions
 
-### AI-specific threats
+## Security Requirements
 
-- prompt injection
-- jailbreak
-- unsafe crisis advice
-- model hallucination
-- data leakage from model providers
-- dependency formation and manipulative personalization
+- OWASP API Security Top 10 controls
+- strict auth and authz
+- rate limiting per endpoint and model type
+- request validation and typed DTOs
+- secure headers and strict CORS
+- SSRF and upload protections
+- access to sensitive routes must require both identity and role checks
 
-### Operational threats
+## Privacy Requirements
 
-- dependency outage
-- rate abuse
-- model cost blow-up
-- malicious payloads in uploads
-- supply chain vulnerability
+- data minimization
+- purpose limitation
+- explicit consent tracking
+- data retention policies
+- deletion and export flows
+- pseudonymization when practical
+- no raw health content in technical logs
 
-## Mitigations
+## Operational Controls
 
-- OIDC / Keycloak with MFA readiness
-- RBAC + ABAC-ready authorization model
-- row-level security and ownership checks
-- no raw sensitive data in technical logs
-- model gateway abstraction with allowlists
-- versioned safety policy engine
-- strict prompt injection defenses
-- rate limiting and quotas
-- secure upload validation and malware scanning strategy
-- dependency scanning and SBOM generation
+- audit logs for privileged actions
+- backup/restore testing
+- model rollback and registry
+- secret management
+- dependency scanning and vulnerability review
+- performance, safety, and cost guardrails
 
-## Security posture
+## Risk Acceptance Notes
 
-The platform should be built according to OWASP API Security Top 10 and should require explicit human oversight for risky AI outputs.
+No AI safety policy may be implemented as a single LLM prompt. Safety must be layered with deterministic rules, evaluation, and human oversight.
 
+## Related Documents
+
+- `docs/privacy/PRIVACY.md`
+- `docs/architecture/ARCHITECTURE.md`
+- `docs/adr/ADR-008-safety-engine.md`
