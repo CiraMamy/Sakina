@@ -5,15 +5,15 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 class CreateProfessionalDto {
-  firstName: string;
-  lastName: string;
-  email: string;
+  firstName!: string;
+  lastName!: string;
+  email!: string;
   phone?: string;
-  role: string;
-  specialties: string[];
-  country: string;
+  role!: string;
+  specialties: string[] = [];
+  country!: string;
   city?: string;
-  languagesSpoken: string[];
+  languagesSpoken: string[] = [];
   remoteAvailable?: boolean;
   costPerSession?: number;
 }

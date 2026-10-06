@@ -5,9 +5,9 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 class CreateConsentDto {
-  type: string;
-  version: string;
-  purpose: string;
+  type!: string;
+  version!: string;
+  purpose!: string;
   legalBasis?: string;
   source?: string;
   metadata?: Record<string, any>;

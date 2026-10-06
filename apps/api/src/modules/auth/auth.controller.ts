@@ -1,20 +1,41 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 import { Public } from '../../common/decorators/public.decorator';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 class RegisterDto {
-  email: string;
-  password: string;
+  @IsEmail({}, { message: 'Email must be a valid email address' })
+  email!: string;
+
+  @IsString()
+  @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  @MaxLength(128, { message: 'Password must not exceed 128 characters' })
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d).+$/, {
+    message: 'Password must contain at least one letter and one number',
+  })
+  password!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100, { message: 'First name must not exceed 100 characters' })
   firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100, { message: 'Last name must not exceed 100 characters' })
   lastName?: string;
 }
 
 class LoginDto {
-  email: string;
-  password: string;
+  @IsEmail({}, { message: 'Email must be a valid email address' })
+  email!: string;
+
+  @IsString()
+  @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  password!: string;
 }
 
 @ApiTags('Auth')

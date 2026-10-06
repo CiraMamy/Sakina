@@ -195,24 +195,24 @@ export default function Chat() {
 
   return (
     <div className="min-h-screen bg-[#F0F6FC] flex flex-col max-w-md mx-auto">
-      <div className="bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-10">
+      <div className="bg-[#F7F5F2] border-b border-[#E9E0D4] px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-[14px] bg-[#E8F1F8] flex items-center justify-center border-2 border-[#7BA9D8]">
+          <div className="w-10 h-10 rounded-[14px] bg-[#E6DFF5] flex items-center justify-center border-2 border-[#C9E8D2]">
             <span className="text-xl">✨</span>
           </div>
           <div>
-            <p className="text-[15px] font-bold text-[#2E4057]">Sakina</p>
+            <p className="text-[15px] font-bold text-[#24313A]">Sakina</p>
             <div className="flex items-center gap-1.5">
               <div className={`w-1.5 h-1.5 rounded-full ${isTyping ? 'bg-amber-400 animate-pulse' : 'bg-green-400'}`} />
-              <p className="text-[10px] text-gray-500">
+              <p className="text-[10px] text-[#5E6E7A]">
                 {isTyping ? 'En train de répondre...' : 'Psychologue IA · En ligne'}
               </p>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1 bg-purple-50 border border-purple-100 rounded-full px-2 py-1">
-          <Brain className="w-3 h-3 text-purple-500" />
-          <span className="text-[9px] font-bold text-purple-600">CBT · ACT · DBT</span>
+        <div className="flex items-center gap-1 bg-[#E6DFF5] border border-[#D5C8EE] rounded-full px-2 py-1">
+          <Brain className="w-3 h-3 text-[#24313A]" />
+          <span className="text-[9px] font-bold text-[#24313A]">CBT · ACT · DBT</span>
         </div>
       </div>
 
@@ -220,7 +220,7 @@ export default function Chat() {
         {crisis && <CrisisAlert crisis={crisis} onDismiss={() => setCrisis(null)} />}
       </AnimatePresence>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[radial-gradient(circle_at_top,_rgba(167,199,231,0.12),_transparent_55%)]">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <MessageBubble key={msg.id} message={msg} />
@@ -247,23 +247,23 @@ export default function Chat() {
         </div>
       )}
 
-      <div className="bg-white border-t border-gray-100 px-4 py-3">
+      <div className="bg-[#F7F5F2] border-t border-[#E9E0D4] px-4 py-3">
         <div className="flex items-end gap-2">
-          <div className="flex-1 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 focus-within:border-[#7BA9D8]">
+          <div className="flex-1 bg-white border border-[#E9E0D4] rounded-2xl px-4 py-2.5 shadow-sm focus-within:border-[#A7C7E7]">
             <textarea
               rows={1}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Exprime-toi librement..."
-              className="w-full bg-transparent text-[14px] text-[#2E4057] placeholder-gray-400 resize-none outline-none max-h-32"
+              className="w-full bg-transparent text-[14px] text-[#24313A] placeholder-[#7A8190] resize-none outline-none max-h-32"
               maxLength={3000}
             />
           </div>
           <button
             onClick={() => sendMessage()}
             disabled={!input.trim() || isTyping}
-            className={`w-11 h-11 rounded-full flex items-center justify-center ${input.trim() && !isTyping ? 'bg-[#7BA9D8] hover:bg-[#5A8BBD]' : 'bg-gray-200 cursor-not-allowed'}`}
+            className={`w-11 h-11 rounded-full flex items-center justify-center ${input.trim() && !isTyping ? 'bg-[#A7C7E7] hover:bg-[#8FB9E7]' : 'bg-[#E7E9ED] cursor-not-allowed'}`}
           >
             {isTyping ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

@@ -6,7 +6,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 class CreateJournalEntryDto {
   title?: string;
-  content: string;
+  content!: string;
   moodScore?: number;
   tags?: string[];
   context?: Record<string, any>;

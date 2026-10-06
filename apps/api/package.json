@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
-    "@nestjs/schematics": "^10.4.15",
+    "@nestjs/schematics": "^10.2.3",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
     "@types/passport-jwt": "^4.0.0",

@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class SecurityService {
-  validateInputSize(input: string, maxSize: number = 10000): boolean {
-    return input && input.length <= maxSize;
+  validateInputSize(input: string | undefined | null, maxSize: number = 10000): boolean {
+    return typeof input === 'string' && input.length > 0 && input.length <= maxSize;
   }
 
   detectPromptInjection(text: string): boolean {

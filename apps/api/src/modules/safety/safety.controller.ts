@@ -4,7 +4,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 class SafetyCheckDto {
-  text: string;
+  text!: string;
 }
 
 @ApiTags('Safety')

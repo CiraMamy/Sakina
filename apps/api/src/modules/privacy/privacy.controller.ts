@@ -10,7 +10,7 @@ class DataExportRequest {
 
 class DataDeletionRequest {
   reason?: string;
-  confirm: boolean;
+  confirm!: boolean;
 }
 
 @ApiTags('Privacy')

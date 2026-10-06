@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 class AIRequestDto {
-  prompt: string;
+  prompt!: string;
   context?: Record<string, any>;
 }
 

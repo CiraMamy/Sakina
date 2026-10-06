@@ -4,9 +4,9 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 class SendNotificationDto {
-  type: string;
-  title: string;
-  message: string;
+  type!: string;
+  title!: string;
+  message!: string;
   channel?: string;
   scheduledFor?: Date;
 }

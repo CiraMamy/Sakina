@@ -4,14 +4,14 @@ import { Roles } from '../../common/guards/roles.guard';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 class UpdateFeatureFlagDto {
-  key: string;
-  enabled: boolean;
+  key!: string;
+  enabled!: boolean;
   country?: string;
 }
 
 class UpdateSafetyPolicyDto {
-  level: string;
-  threshold: number;
+  level!: string;
+  threshold!: number;
 }
 
 @ApiTags('Admin')

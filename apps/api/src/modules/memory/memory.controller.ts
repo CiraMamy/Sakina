@@ -6,7 +6,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 class CreateMemoryRecordDto {
   memoryType?: string;
-  summary: string;
+  summary!: string;
   confidence?: number;
 }
 

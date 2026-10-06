@@ -5,7 +5,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 class CreateReferralDto {
-  reason: string;
+  reason!: string;
   notes?: string;
 }
 
