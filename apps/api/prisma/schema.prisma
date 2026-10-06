@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  PROFESSIONAL
+  SUPPORT_AGENT
+  ORGANIZATION_ADMIN
+  CLINICAL_ADVISOR
+  RESEARCHER
+  SUPER_ADMIN
+}
+
+enum ConsentStatus {
+  GRANTED
+  REVOKED
+  EXPIRED
+}
+
+enum ConsentSource {
+  WEB
+  MOBILE
+  SMS
+  ADMIN
+}
+
+enum SafetyLevel {
+  LOW
+  MODERATE
+  HIGH
+  CRITICAL
+}
+
+enum RiskSignal {
+  DISTRESS
+  CRISIS
+  SELF_HARM
+  SUICIDE_RISK
+  DOMESTIC_VIOLENCE
+  ABUSE
+  SUBSTANCE_CRISIS
+  OTHER
+}
+
+model User {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  passwordHash     String
+  firstName        String?
+  lastName         String?
+  phone            String?
+  role             UserRole @default(USER)
+  isActive         Boolean  @default(true)
+  emailVerified    Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+
+  profile          Profile?
+  consents         Consent[]
+  sessions         UserSession[]
+  conversations    ConversationParticipant[]
+  messages         Message[]
+  auditEvents      AuditEvent[]
+  safetyAlerts     SafetyAlert[]
+  journalEntries   JournalEntry[]
+  emotionCheckins  EmotionCheckin[]
+  wellnessLogs     WellnessLog[]
+  memoryRecords    MemoryRecord[]
+  referrals        Referral[]
+}
+
+model Profile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  country         String?
+  language        String   @default("fr")
+  timezone        String   @default("UTC")
+  dateOfBirth     DateTime?
+  gender          String?
+  accessibility   Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+model Consent {
+  id            String         @id @default(uuid())
+  userId        String
+  type          String
+  version       String
+  status        ConsentStatus  @default(GRANTED)
+  source        ConsentSource  @default(WEB)
+  purpose       String
+  legalBasis    String?
+  grantedAt     DateTime       @default(now())
+  revokedAt     DateTime?
+  metadata      Json?
+
+  user          User           @relation(fields: [userId], references: [id])
+}
+
+model UserSession {
+  id           String   @id @default(uuid())
+  userId       String
+  tokenHash    String
+  refreshToken String?
+  deviceName   String?
+  ipAddress    String?
+  userAgent    String?
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model Conversation {
+  id          String   @id @default(uuid())
+  title       String?
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id            String   @id @default(uuid())
+  conversationId String
+  userId        String
+  role          String   @default("USER")
+  joinedAt      DateTime @default(now())
+
+  conversation  Conversation @relation(fields: [conversationId], references: [id])
+  user          User         @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id            String   @id @default(uuid())
+  conversationId String
+  userId        String?
+  senderType    String   @default("USER")
+  content       String
+  metadata      Json?
+  createdAt     DateTime @default(now())
+
+  conversation  Conversation @relation(fields: [conversationId], references: [id])
+  user          User?        @relation(fields: [userId], references: [id])
+}
+
+model SafetyAlert {
+  id          String      @id @default(uuid())
+  userId      String
+  level       SafetyLevel
+  signal      RiskSignal
+  confidence  Float
+  summary     String
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+
+  user        User        @relation(fields: [userId], references: [id])
+}
+
+model AuditEvent {
+  id            String   @id @default(uuid())
+  actorUserId   String?
+  action        String
+  resourceType  String?
+  resourceId    String?
+  details       Json?
+  createdAt     DateTime @default(now())
+
+  actor         User?     @relation(fields: [actorUserId], references: [id])
+}
+
+model JournalEntry {
+  id          String   @id @default(uuid())
+  userId      String
+  moodScore   Float?
+  title       String?
+  content     String
+  tags        String[]
+  context     Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model EmotionCheckin {
+  id          String   @id @default(uuid())
+  userId      String
+  moodLabel   String?
+  valence     Float?
+  arousal     Float?
+  dominance   Float?
+  confidence  Float?
+  uncertainty Float?
+  context     Json?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model WellnessLog {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String   @default("exercise")
+  title       String?
+  value       Float?
+  note        String?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model MemoryRecord {
+  id          String   @id @default(uuid())
+  userId      String
+  memoryType  String   @default("insight")
+  summary     String
+  confidence  Float?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Professional {
+  id              String   @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String   @unique
+  phone           String?
+  role            String
+  specialties     String[]
+  country         String
+  city            String?
+  languagesSpoken String[]
+  remoteAvailable Boolean  @default(false)
+  costPerSession  Float?
+  isVerified      Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  referralsAsProfessional Referral[] @relation("ProfessionalReferrals")
+}
+
+model Referral {
+  id            String   @id @default(uuid())
+  userId        String
+  professionalId String?
+  reason        String
+  notes         String?
+  userConsent   Boolean  @default(true)
+  status        String   @default("PENDING")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User        @relation(fields: [userId], references: [id])
+  professional  Professional? @relation("ProfessionalReferrals", fields: [professionalId], references: [id])
+}

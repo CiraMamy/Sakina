@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Plus, Calendar, Heart, Trash2, Edit } from 'lucide-react';
+import { BookOpen, Plus, Calendar, Trash2, Edit, NotebookPen } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { base44 } from '../api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -73,19 +73,19 @@ export default function Journal() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] dark:bg-gray-900 pb-8">
-      <div className="bg-gradient-to-br from-[#8CB8E8] to-[#A7D7C5] px-6 pt-12 pb-8 rounded-b-[48px]">
+    <div className="min-h-screen bg-[#F7F5F2] pb-8">
+      <div className="bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_20%),linear-gradient(135deg,#A7C7E7_0%,#C9E8D2_100%)] px-6 pt-12 pb-8 rounded-b-[42px]">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h1 className="text-3xl font-bold text-white">Journal</h1>
-            <p className="text-white/80 font-light">Espace d'écriture libre</p>
+            <p className="text-[11px] uppercase tracking-[0.25em] text-white/70">Écriture</p>
+            <h1 className="mt-2 text-3xl font-bold text-white">Journal</h1>
           </div>
-          <Button
+          <button
             onClick={() => setShowEditor(true)}
-            className="w-12 h-12 rounded-[16px] bg-white/20 backdrop-blur-lg hover:bg-white/30"
+            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
           >
-            <Plus className="w-6 h-6 text-white" />
-          </Button>
+            <Plus className="h-6 w-6" />
+          </button>
         </div>
       </div>
 
@@ -96,33 +96,33 @@ export default function Journal() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-[24px] p-6 card-shadow mb-6"
+              className="sakina-card p-5 mb-6"
             >
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Titre (optionnel)"
-                className="w-full bg-transparent text-xl font-bold text-[#2E4057] dark:text-white mb-4 focus:outline-none placeholder:text-gray-400"
+                className="w-full bg-transparent text-xl font-bold text-sakina-700 mb-4 focus:outline-none placeholder:text-[#7A8190]"
               />
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Écris tes pensées, tes émotions, tes réflexions..."
-                className="w-full bg-transparent text-[#2E4057] dark:text-gray-300 focus:outline-none resize-none min-h-[200px] placeholder:text-gray-400"
+                className="w-full bg-transparent text-sakina-700 focus:outline-none resize-none min-h-[180px] placeholder:text-[#7A8190]"
               />
               <div className="flex gap-3 mt-4">
                 <Button
                   onClick={handleSubmit}
                   disabled={!content.trim()}
-                  className="flex-1 h-12 rounded-[16px] bg-gradient-to-r from-[#8CB8E8] to-[#A7D7C5] hover:shadow-lg disabled:opacity-50"
+                  className="flex-1 h-12 rounded-[16px] bg-[#24313A] text-white disabled:opacity-50"
                 >
                   {editingEntry ? 'Mettre à jour' : 'Enregistrer'}
                 </Button>
                 <Button
                   onClick={resetForm}
                   variant="outline"
-                  className="h-12 px-6 rounded-[16px]"
+                  className="h-12 px-6 rounded-[16px] border-[#E9E0D4]"
                 >
                   Annuler
                 </Button>
@@ -132,10 +132,10 @@ export default function Journal() {
         </AnimatePresence>
 
         {entries.length === 0 && !showEditor && (
-          <div className="bg-white dark:bg-gray-800 rounded-[24px] p-12 text-center card-shadow">
-            <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 mb-2">Ton journal est vide</p>
-            <p className="text-sm text-gray-400">Commence à écrire pour libérer tes pensées</p>
+          <div className="sakina-card p-12 text-center">
+            <NotebookPen className="w-16 h-16 text-[#7A8190] mx-auto mb-4" />
+            <p className="text-[#5E6E7A] mb-2">Ton journal est vide</p>
+            <p className="text-sm text-[#7A8190]">Commence à écrire pour libérer tes pensées</p>
           </div>
         )}
 
@@ -145,12 +145,12 @@ export default function Journal() {
               key={entry.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-[24px] p-5 card-shadow"
+              className="sakina-card p-5"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="font-bold text-[#2E4057] dark:text-white mb-1">{entry.title}</h3>
-                  <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                  <h3 className="font-bold text-sakina-700 mb-1">{entry.title}</h3>
+                  <div className="flex items-center space-x-2 text-xs text-[#5E6E7A]">
                     <Calendar className="w-3 h-3" />
                     <span>{format(new Date(entry.created_date), 'PPP', { locale: fr })}</span>
                   </div>
@@ -158,19 +158,19 @@ export default function Journal() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(entry)}
-                    className="w-8 h-8 rounded-[12px] bg-[#8CB8E8]/10 hover:bg-[#8CB8E8]/20 flex items-center justify-center transition-colors"
+                    className="flex h-8 w-8 items-center justify-center rounded-[12px] bg-[#E6DFF5]"
                   >
-                    <Edit className="w-4 h-4 text-[#8CB8E8]" />
+                    <Edit className="w-4 h-4 text-sakina-700" />
                   </button>
                   <button
                     onClick={() => deleteMutation.mutate(entry.id)}
-                    className="w-8 h-8 rounded-[12px] bg-red-50 hover:bg-red-100 dark:bg-red-900/20 flex items-center justify-center transition-colors"
+                    className="flex h-8 w-8 items-center justify-center rounded-[12px] bg-red-50"
                   >
                     <Trash2 className="w-4 h-4 text-red-500" />
                   </button>
                 </div>
               </div>
-              <p className="text-[#2E4057] dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+              <p className="text-sakina-700 text-sm leading-relaxed whitespace-pre-wrap">
                 {entry.content}
               </p>
             </motion.div>

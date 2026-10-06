@@ -198,42 +198,40 @@ Sois spécifique, bienveillant et actionable. Adapte les conseils aux données r
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-8">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-[#8CB8E8] to-[#A7D7C5] px-6 pt-12 pb-32 rounded-b-[48px]">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-[16px] bg-white/20 backdrop-blur-lg flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-[#F7F5F2] pb-8">
+      <div className="rounded-b-[42px] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_20%),linear-gradient(135deg,#A7C7E7_0%,#C9E8D2_100%)] px-6 pb-28 pt-12">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-white/20 backdrop-blur-sm">
+              <Sparkles className="h-6 w-6 text-white" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">Coaching IA</h1>
-              <p className="text-white/80 font-light text-sm">Personnalisé pour toi</p>
+              <p className="text-sm text-white/80">Personnalisé pour toi</p>
             </div>
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-3 mt-6">
-          <div className="bg-white/10 backdrop-blur-lg rounded-[16px] p-3 text-center">
-            <TrendingUp className="w-5 h-5 text-white mx-auto mb-1" />
+        <div className="mt-6 grid grid-cols-3 gap-3">
+          <div className="rounded-[18px] bg-white/10 p-3 text-center backdrop-blur-sm">
+            <TrendingUp className="mx-auto mb-1 h-5 w-5 text-white" />
             <p className="text-xl font-bold text-white">{userData.moodEntries.length}</p>
-            <p className="text-xs text-white/70">Check-ins</p>
+            <p className="text-[10px] text-white/70">Check-ins</p>
           </div>
-          <div className="bg-white/10 backdrop-blur-lg rounded-[16px] p-3 text-center">
-            <Target className="w-5 h-5 text-white mx-auto mb-1" />
+          <div className="rounded-[18px] bg-white/10 p-3 text-center backdrop-blur-sm">
+            <Target className="mx-auto mb-1 h-5 w-5 text-white" />
             <p className="text-xl font-bold text-white">{userData.progress.current_streak || 0}j</p>
-            <p className="text-xs text-white/70">Série</p>
+            <p className="text-[10px] text-white/70">Série</p>
           </div>
-          <div className="bg-white/10 backdrop-blur-lg rounded-[16px] p-3 text-center">
-            <Award className="w-5 h-5 text-white mx-auto mb-1" />
+          <div className="rounded-[18px] bg-white/10 p-3 text-center backdrop-blur-sm">
+            <Award className="mx-auto mb-1 h-5 w-5 text-white" />
             <p className="text-xl font-bold text-white">Niv. {userData.progress.current_level || 1}</p>
-            <p className="text-xs text-white/70">Niveau</p>
+            <p className="text-[10px] text-white/70">Niveau</p>
           </div>
         </div>
       </div>
 
-      <div className="px-6 -mt-24 space-y-6">
+      <div className="-mt-24 space-y-6 px-6">
         {/* AI Insights */}
         {coachingData && (
           <>
